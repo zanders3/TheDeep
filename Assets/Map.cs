@@ -18,6 +18,9 @@ public class MeshProxy
 
 	public void AddQuad(Sprite[] tiles, int ind, int x, int y, float z)
 	{
+        if (ind >= tiles.Length)
+            return;
+
 		tris.Add(verts.Count);
 		tris.Add(verts.Count+1);
 		tris.Add(verts.Count+2);
@@ -26,19 +29,19 @@ public class MeshProxy
 		tris.Add(verts.Count+2);
 		tris.Add(verts.Count+3);
 		
-		verts.Add(new Vector3(x,   -y, z));
-		verts.Add(new Vector3(x+1, -y, z));
-		verts.Add(new Vector3(x+1, -y-1, z));
-		verts.Add(new Vector3(x,   -y-1, z));
+        verts.Add(new Vector3(x,  z, -y));
+        verts.Add(new Vector3(x+1,z, -y));
+        verts.Add(new Vector3(x+1,z, -y-1));
+		verts.Add(new Vector3(x,  z, -y-1));
 
         Rect rect = tiles[ind].rect;
 		float xmin = rect.xMin / tiles[0].texture.width, ymin = rect.yMin / tiles[0].texture.height;
 		float xmax = rect.xMax / tiles[0].texture.width, ymax = rect.yMax / tiles[0].texture.height;
 		
-		uvs.Add(new Vector2(xmin, ymin));
-		uvs.Add(new Vector2(xmax, ymin));
-		uvs.Add(new Vector2(xmax, ymax));
 		uvs.Add(new Vector2(xmin, ymax));
+		uvs.Add(new Vector2(xmax, ymax));
+		uvs.Add(new Vector2(xmax, ymin));
+		uvs.Add(new Vector2(xmin, ymin));
 	}
 
 	public void ToMesh(Mesh mesh)
@@ -89,36 +92,32 @@ public class Map : MonoBehaviour
         return tiles;
     }
 
-    static int GetEdgeIndex(int x, int y, Tile[,] level)
+    static int GetEdgeIndex(int x, int y, Tile[,] level, Tile current)
     {
-        int idx = 0;
-        Tile current = level[x,y];
+        if (level[x,y] != current)
+            return 0;
 
-        if (x <= 0 || level[x-1,y] != current) idx += 1;
-        if (y >= level.GetLength(1)-1 || level[x,y+1] != current) idx += 2;
-        if (x >= level.GetLength(0)-1 || level[x+1,y] != current) idx += 4;
-        if (y <= 0 || level[x,y-1] != current) idx += 8;
+        int mx = level.GetLength(0) - 1, my = level.GetLength(1) - 1;
+
+        bool l = x > 0 && level[x-1,y] >= current;
+        bool t = y > 0 && level[x,y-1] >= current;
+
+        bool r = x < mx && level[x+1,y] >= current;
+        bool b = y < my && level[x,y+1] >= current;
+
+        bool tl = x > 0  && y > 0  && level[x-1,y-1] >= current;
+        bool tr = x < mx && y > 0  && level[x+1,y-1] >= current;
+        bool bl = x > 0  && y < my && level[x-1,y+1] >= current;
+        bool br = x < mx && y < my && level[x+1,y+1] >= current;
+
+        int idx = 0;
+        if (l && tl && t) idx += 1;
+        if (t && tr && r) idx += 2;
+        if (r && br && b) idx += 8;
+        if (b && bl && l) idx += 4;
 
         return idx;
     }
-
-	static int GetCornerIndex(int x, int y, Tile[,] level)
-	{
-        int idx = 0;
-        Tile current = level[x,y];
-
-        if (y <= 0 || x <= 0 || y >= level.GetLength(1) - 1 || x >= level.GetLength(0) - 1)
-            idx = 0;
-        else
-        {
-            if (level[x-1,y+1] != current) idx += 1;
-            if (level[x+1,y+1] != current) idx += 2;
-            if (level[x+1,y-1] != current) idx += 4;
-            if (level[x-1,y-1] != current) idx += 8;
-        }
-
-		return idx + 15;
-	}
 
     static void GenerateMesh(Mesh mesh, Tile[,] level, Sprite[] tiles)
     {
@@ -128,11 +127,16 @@ public class Map : MonoBehaviour
         {
             for (int y = 0; y<level.GetLength(1); y++)
             {
-                if (level[x,y] == Tile.Empty)
+                Tile current = level[x,y];
+                if (current == Tile.Empty)
                     continue;
 
-                meshProxy.AddQuad(tiles, GetEdgeIndex(x,y,level), x, y, 0.0f);
-                meshProxy.AddQuad(tiles, GetCornerIndex(x,y,level), x, y, -0.1f);
+                int ind = GetEdgeIndex(x,y,level,level[x,y]);
+                if (ind == 0) 
+                    continue;
+                if (current == Tile.Water) ind += 15;
+
+                meshProxy.AddQuad(tiles, ind-1, x, y, 0.0f);
             }
         }
 
