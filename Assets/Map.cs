@@ -13,6 +13,7 @@ enum Tile : int
 public class MeshProxy
 {
 	public List<Vector3> verts = new List<Vector3>();
+    public List<Vector3> normals = new List<Vector3>();
 	public List<int> tris = new List<int>();
 	public List<Vector2> uvs = new List<Vector2>();
 
@@ -34,6 +35,11 @@ public class MeshProxy
         verts.Add(new Vector3(x+1,z, -y-1));
 		verts.Add(new Vector3(x,  z, -y-1));
 
+        normals.Add(Vector3.up);
+        normals.Add(Vector3.up);
+        normals.Add(Vector3.up);
+        normals.Add(Vector3.up);
+
         Rect rect = tiles[ind].rect;
 		float xmin = rect.xMin / tiles[0].texture.width, ymin = rect.yMin / tiles[0].texture.height;
 		float xmax = rect.xMax / tiles[0].texture.width, ymax = rect.yMax / tiles[0].texture.height;
@@ -49,6 +55,7 @@ public class MeshProxy
 		mesh.Clear();
 		mesh.vertices = verts.ToArray();
 		mesh.uv = uvs.ToArray();
+        mesh.normals = normals.ToArray();
 		mesh.triangles = tris.ToArray();
 	}
 }
@@ -66,7 +73,7 @@ public class Map : MonoBehaviour
 
         Tile[,] level = ParseLevel(Level.text);
 
-        GetComponent<MeshRenderer>().sharedMaterial = new Material(Shader.Find("TheDeep/Tile"));
+        GetComponent<MeshRenderer>().sharedMaterial = new Material(Shader.Find("Diffuse"));
         GetComponent<MeshRenderer>().sharedMaterial.mainTexture = Tiles[0].texture;
 
         if (GetComponent<MeshFilter>().sharedMesh == null)
