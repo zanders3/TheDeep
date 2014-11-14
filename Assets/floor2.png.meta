@@ -32,6 +32,10 @@ TextureImporter:
     21300054: floor2_27
     21300056: floor2_28
     21300058: floor2_29
+    21300060: floor2_30
+    21300062: floor2_31
+    21300064: floor2_32
+    21300066: floor2_33
   serializedVersion: 2
   mipmaps:
     mipMapMode: 0
@@ -77,37 +81,37 @@ TextureImporter:
       rect:
         serializedVersion: 2
         x: 0
-        y: 33
+        y: 66
         width: 32
         height: 32
       alignment: 0
-      pivot: {x: .5, y: .5}
+      pivot: {x: 0, y: 0}
       border: {x: 0, y: 0, z: 0, w: 0}
     - name: floor2_1
       rect:
         serializedVersion: 2
         x: 33
-        y: 33
+        y: 66
         width: 32
         height: 32
       alignment: 0
-      pivot: {x: .5, y: .5}
+      pivot: {x: 0, y: 0}
       border: {x: 0, y: 0, z: 0, w: 0}
     - name: floor2_2
       rect:
         serializedVersion: 2
         x: 66
-        y: 33
+        y: 66
         width: 32
         height: 32
       alignment: 0
-      pivot: {x: .5, y: .5}
+      pivot: {x: 0, y: 0}
       border: {x: 0, y: 0, z: 0, w: 0}
     - name: floor2_3
       rect:
         serializedVersion: 2
         x: 99
-        y: 33
+        y: 66
         width: 32
         height: 32
       alignment: 0
@@ -117,7 +121,7 @@ TextureImporter:
       rect:
         serializedVersion: 2
         x: 132
-        y: 33
+        y: 66
         width: 32
         height: 32
       alignment: 0
@@ -127,7 +131,7 @@ TextureImporter:
       rect:
         serializedVersion: 2
         x: 165
-        y: 33
+        y: 66
         width: 32
         height: 32
       alignment: 0
@@ -137,7 +141,7 @@ TextureImporter:
       rect:
         serializedVersion: 2
         x: 198
-        y: 33
+        y: 66
         width: 32
         height: 32
       alignment: 0
@@ -147,7 +151,7 @@ TextureImporter:
       rect:
         serializedVersion: 2
         x: 231
-        y: 33
+        y: 66
         width: 32
         height: 32
       alignment: 0
@@ -157,7 +161,7 @@ TextureImporter:
       rect:
         serializedVersion: 2
         x: 264
-        y: 33
+        y: 66
         width: 32
         height: 32
       alignment: 0
@@ -167,7 +171,7 @@ TextureImporter:
       rect:
         serializedVersion: 2
         x: 297
-        y: 33
+        y: 66
         width: 32
         height: 32
       alignment: 0
@@ -177,7 +181,7 @@ TextureImporter:
       rect:
         serializedVersion: 2
         x: 330
-        y: 33
+        y: 66
         width: 32
         height: 32
       alignment: 0
@@ -187,7 +191,7 @@ TextureImporter:
       rect:
         serializedVersion: 2
         x: 363
-        y: 33
+        y: 66
         width: 32
         height: 32
       alignment: 0
@@ -197,7 +201,7 @@ TextureImporter:
       rect:
         serializedVersion: 2
         x: 396
-        y: 33
+        y: 66
         width: 32
         height: 32
       alignment: 0
@@ -207,7 +211,7 @@ TextureImporter:
       rect:
         serializedVersion: 2
         x: 429
-        y: 33
+        y: 66
         width: 32
         height: 32
       alignment: 0
@@ -217,7 +221,7 @@ TextureImporter:
       rect:
         serializedVersion: 2
         x: 462
-        y: 33
+        y: 66
         width: 32
         height: 32
       alignment: 0
@@ -227,7 +231,7 @@ TextureImporter:
       rect:
         serializedVersion: 2
         x: 0
-        y: 0
+        y: 33
         width: 32
         height: 32
       alignment: 0
@@ -237,7 +241,7 @@ TextureImporter:
       rect:
         serializedVersion: 2
         x: 33
-        y: 0
+        y: 33
         width: 32
         height: 32
       alignment: 0
@@ -247,7 +251,7 @@ TextureImporter:
       rect:
         serializedVersion: 2
         x: 66
-        y: 0
+        y: 33
         width: 32
         height: 32
       alignment: 0
@@ -257,7 +261,7 @@ TextureImporter:
       rect:
         serializedVersion: 2
         x: 99
-        y: 0
+        y: 33
         width: 32
         height: 32
       alignment: 0
@@ -267,7 +271,7 @@ TextureImporter:
       rect:
         serializedVersion: 2
         x: 132
-        y: 0
+        y: 33
         width: 32
         height: 32
       alignment: 0
@@ -277,7 +281,7 @@ TextureImporter:
       rect:
         serializedVersion: 2
         x: 165
-        y: 0
+        y: 33
         width: 32
         height: 32
       alignment: 0
@@ -287,7 +291,7 @@ TextureImporter:
       rect:
         serializedVersion: 2
         x: 198
-        y: 0
+        y: 33
         width: 32
         height: 32
       alignment: 0
@@ -297,7 +301,7 @@ TextureImporter:
       rect:
         serializedVersion: 2
         x: 231
-        y: 0
+        y: 33
         width: 32
         height: 32
       alignment: 0
@@ -307,7 +311,7 @@ TextureImporter:
       rect:
         serializedVersion: 2
         x: 264
-        y: 0
+        y: 33
         width: 32
         height: 32
       alignment: 0
@@ -317,7 +321,7 @@ TextureImporter:
       rect:
         serializedVersion: 2
         x: 297
-        y: 0
+        y: 33
         width: 32
         height: 32
       alignment: 0
@@ -327,7 +331,7 @@ TextureImporter:
       rect:
         serializedVersion: 2
         x: 330
-        y: 0
+        y: 33
         width: 32
         height: 32
       alignment: 0
@@ -337,7 +341,7 @@ TextureImporter:
       rect:
         serializedVersion: 2
         x: 363
-        y: 0
+        y: 33
         width: 32
         height: 32
       alignment: 0
@@ -347,7 +351,7 @@ TextureImporter:
       rect:
         serializedVersion: 2
         x: 396
-        y: 0
+        y: 33
         width: 32
         height: 32
       alignment: 0
@@ -357,7 +361,7 @@ TextureImporter:
       rect:
         serializedVersion: 2
         x: 429
-        y: 0
+        y: 33
         width: 32
         height: 32
       alignment: 0
@@ -367,6 +371,46 @@ TextureImporter:
       rect:
         serializedVersion: 2
         x: 462
+        y: 33
+        width: 32
+        height: 32
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+    - name: floor2_30
+      rect:
+        serializedVersion: 2
+        x: 0
+        y: 0
+        width: 32
+        height: 32
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+    - name: floor2_31
+      rect:
+        serializedVersion: 2
+        x: 33
+        y: 0
+        width: 32
+        height: 32
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+    - name: floor2_32
+      rect:
+        serializedVersion: 2
+        x: 66
+        y: 0
+        width: 32
+        height: 32
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+    - name: floor2_33
+      rect:
+        serializedVersion: 2
+        x: 99
         y: 0
         width: 32
         height: 32

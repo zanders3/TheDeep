@@ -5,59 +5,14 @@ using System.Collections.Generic;
 
 enum Tile : int
 {
-    Empty = 0,
-    Floor = 1,
-    Water = 2
+    Floor = 0,
+    Water = 1
 }
 
-public class MeshProxy
+struct TileInfo
 {
-	public List<Vector3> verts = new List<Vector3>();
-    public List<Vector3> normals = new List<Vector3>();
-	public List<int> tris = new List<int>();
-	public List<Vector2> uvs = new List<Vector2>();
-
-	public void AddQuad(Sprite[] tiles, int ind, int x, int y, float z)
-	{
-        if (ind >= tiles.Length)
-            return;
-
-		tris.Add(verts.Count);
-		tris.Add(verts.Count+1);
-		tris.Add(verts.Count+2);
-		
-		tris.Add(verts.Count);
-		tris.Add(verts.Count+2);
-		tris.Add(verts.Count+3);
-		
-        verts.Add(new Vector3(x,  z, -y));
-        verts.Add(new Vector3(x+1,z, -y));
-        verts.Add(new Vector3(x+1,z, -y-1));
-		verts.Add(new Vector3(x,  z, -y-1));
-
-        normals.Add(Vector3.up);
-        normals.Add(Vector3.up);
-        normals.Add(Vector3.up);
-        normals.Add(Vector3.up);
-
-        Rect rect = tiles[ind].rect;
-		float xmin = rect.xMin / tiles[0].texture.width, ymin = rect.yMin / tiles[0].texture.height;
-		float xmax = rect.xMax / tiles[0].texture.width, ymax = rect.yMax / tiles[0].texture.height;
-		
-		uvs.Add(new Vector2(xmin, ymax));
-		uvs.Add(new Vector2(xmax, ymax));
-		uvs.Add(new Vector2(xmax, ymin));
-		uvs.Add(new Vector2(xmin, ymin));
-	}
-
-	public void ToMesh(Mesh mesh)
-	{
-		mesh.Clear();
-		mesh.vertices = verts.ToArray();
-		mesh.uv = uvs.ToArray();
-        mesh.normals = normals.ToArray();
-		mesh.triangles = tris.ToArray();
-	}
+    public int Height;
+    public Tile Type;
 }
 
 [ExecuteInEditMode, RequireComponent(typeof(MeshFilter), typeof(MeshRenderer))]
@@ -71,7 +26,7 @@ public class Map : MonoBehaviour
         if (Level == null || Tiles == null || Tiles.Length == 0)
             return;
 
-        Tile[,] level = ParseLevel(Level.text);
+        TileInfo[,] level = ParseLevel(Level.text);
 
         GetComponent<MeshRenderer>().sharedMaterial = new Material(Shader.Find("Diffuse"));
         GetComponent<MeshRenderer>().sharedMaterial.mainTexture = Tiles[0].texture;
@@ -81,41 +36,38 @@ public class Map : MonoBehaviour
         GenerateMesh(GetComponent<MeshFilter>().sharedMesh, level, Tiles);
 	}
 
-    static Tile[,] ParseLevel(string level)
+    static TileInfo[,] ParseLevel(string level)
     {
         string[] lines = level.Split('\n');
         int width = lines[0].Length, height = lines.Length;
 
-        Tile[,] tiles = new Tile[width,height];
+        TileInfo[,] tiles = new TileInfo[width,height];
 		for (int y = 0; y<height; y++)
         {
-			for (int x = 0; x<width&&x<lines[y].Length; x++)    
+			for (int x = 0; x<width&&x<lines[y].Length; x++)
             {
-				Tile tile = (Tile)((int)lines[y][x] - 48);
-				tiles[x,y] = tile;
+                tiles[x,y].Type = Tile.Floor;
+                tiles[x,y].Height = (int)lines[y][x] - 48;
             }
         }
 
         return tiles;
     }
 
-    static int GetEdgeIndex(int x, int y, Tile[,] level, Tile current)
+    static int GetEdgeIndex(int x, int y, TileInfo[,] level, TileInfo current)
     {
-        if (level[x,y] != current)
-            return 0;
-
         int mx = level.GetLength(0) - 1, my = level.GetLength(1) - 1;
 
-        bool l = x > 0 && level[x-1,y] >= current;
-        bool t = y > 0 && level[x,y-1] >= current;
+        bool l = x > 0 && level[x-1,y].Height >= current.Height;
+        bool t = y > 0 && level[x,y-1].Height >= current.Height;
 
-        bool r = x < mx && level[x+1,y] >= current;
-        bool b = y < my && level[x,y+1] >= current;
+        bool r = x < mx && level[x+1,y].Height >= current.Height;
+        bool b = y < my && level[x,y+1].Height >= current.Height;
 
-        bool tl = x > 0  && y > 0  && level[x-1,y-1] >= current;
-        bool tr = x < mx && y > 0  && level[x+1,y-1] >= current;
-        bool bl = x > 0  && y < my && level[x-1,y+1] >= current;
-        bool br = x < mx && y < my && level[x+1,y+1] >= current;
+        bool tl = x > 0  && y > 0  && level[x-1,y-1].Height >= current.Height;
+        bool tr = x < mx && y > 0  && level[x+1,y-1].Height >= current.Height;
+        bool bl = x > 0  && y < my && level[x-1,y+1].Height >= current.Height;
+        bool br = x < mx && y < my && level[x+1,y+1].Height >= current.Height;
 
         int idx = 0;
         if (l && tl && t) idx += 1;
@@ -126,7 +78,7 @@ public class Map : MonoBehaviour
         return idx;
     }
 
-    static void GenerateMesh(Mesh mesh, Tile[,] level, Sprite[] tiles)
+    static void GenerateMesh(Mesh mesh, TileInfo[,] level, Sprite[] tiles)
     {
 		MeshProxy meshProxy = new MeshProxy();
 
@@ -134,16 +86,37 @@ public class Map : MonoBehaviour
         {
             for (int y = 0; y<level.GetLength(1); y++)
             {
-                Tile current = level[x,y];
-                if (current == Tile.Empty)
+                TileInfo current = level[x,y];
+                if (current.Height == 0)
                     continue;
 
+                //Create top tile
                 int ind = GetEdgeIndex(x,y,level,level[x,y]);
-                if (ind == 0) 
-                    continue;
-                if (current == Tile.Water) ind += 15;
+                if (ind == 0)
+                    ind = 15;
+                if (current.Type == Tile.Water) 
+                    ind += 15;
 
-                meshProxy.AddQuad(tiles, ind-1, x, y, 0.0f);
+                meshProxy.AddQuad(tiles, ind-1,
+                                  new Vector3(x,current.Height,-y),
+                                  -Vector3.forward,
+                                  Vector3.right,
+                                  Vector3.up);
+
+                //Create tile sides
+                int mx = level.GetLength(0) - 1, my = level.GetLength(1) - 1;
+                if (current.Height > (x == 0 ? 0 : level[x-1,y].Height))
+                {
+                    meshProxy.AddQuad(tiles, 30,
+                                  new Vector3(x,current.Height-1,-y-1),
+                                  Vector3.up,
+                                  Vector3.forward,
+                                  -Vector3.right);
+                }
+                /*bool t = y > 0 && level[x,y-1].Height > current.Height;
+                
+                bool r = x < mx && level[x+1,y].Height > current.Height;
+                bool b = y < my && level[x,y+1].Height > current.Height;*/
             }
         }
 
