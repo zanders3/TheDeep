@@ -113,6 +113,31 @@ public class Map : MonoBehaviour
                                   Vector3.forward,
                                   -Vector3.right);
                 }
+                if (current.Height > (x == mx ? 0 : level[x+1,y].Height))
+                {
+                    meshProxy.AddQuad(tiles, 30,
+                                      new Vector3(x+1,current.Height-1,-y),
+                                      Vector3.up,
+                                      -Vector3.forward,
+                                      Vector3.right);
+                }
+                if (current.Height > (y == 0 ? 0 : level[x,y-1].Height))
+                {
+                    meshProxy.AddQuad(tiles, 30,
+                                      new Vector3(x,current.Height-1,-y),
+                                      Vector3.up,
+                                      Vector3.right,
+                                      Vector3.forward);
+                }
+                if (current.Height > (y == my ? 0 : level[x,y+1].Height))
+                {
+                    meshProxy.AddQuad(tiles, 30,
+                                      new Vector3(x+1,current.Height-1,-y-1),
+                                      Vector3.up,
+                                      -Vector3.right,
+                                      -Vector3.forward);
+                }
+
                 /*bool t = y > 0 && level[x,y-1].Height > current.Height;
                 
                 bool r = x < mx && level[x+1,y].Height > current.Height;
