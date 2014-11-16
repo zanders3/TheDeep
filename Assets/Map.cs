@@ -18,15 +18,14 @@ struct TileInfo
 [ExecuteInEditMode, RequireComponent(typeof(MeshFilter), typeof(MeshRenderer))]
 public class Map : MonoBehaviour 
 {
-	public TextAsset Level;
     public Sprite[] Tiles;
 
 	void Update() 
 	{
-        if (Level == null || Tiles == null || Tiles.Length == 0)
+        if (Tiles == null || Tiles.Length == 0)
             return;
 
-        TileInfo[,] level = ParseLevel(Level.text);
+        TileInfo[,] level = MakeLevel(30);//ParseLevel(Level.text);
 
         GetComponent<MeshRenderer>().sharedMaterial = new Material(Shader.Find("Diffuse"));
         GetComponent<MeshRenderer>().sharedMaterial.mainTexture = Tiles[0].texture;
@@ -36,22 +35,22 @@ public class Map : MonoBehaviour
         GenerateMesh(GetComponent<MeshFilter>().sharedMesh, level, Tiles);
 	}
 
-    static TileInfo[,] ParseLevel(string level)
-    {
-        string[] lines = level.Split('\n');
-        int width = lines[0].Length, height = lines.Length;
+    public Vector3 Scale = Vector3.one;
 
-        TileInfo[,] tiles = new TileInfo[width,height];
-		for (int y = 0; y<height; y++)
+    TileInfo[,] MakeLevel(int width)
+    {
+        TileInfo[,] level = new TileInfo[width,width];
+
+        for (int x = 0; x<width; x++)
         {
-			for (int x = 0; x<width&&x<lines[y].Length; x++)
+            for (int y = 0; y<width; y++)
             {
-                tiles[x,y].Type = Tile.Floor;
-                tiles[x,y].Height = (int)lines[y][x] - 48;
+                level[x,y].Height = (int)(Mathf.PerlinNoise(x*Scale.x,y*Scale.y) * Scale.z);
+                level[x,y].Type = Tile.Floor;
             }
         }
 
-        return tiles;
+        return level;
     }
 
     static int GetEdgeIndex(int x, int y, TileInfo[,] level, TileInfo current)
