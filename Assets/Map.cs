@@ -105,43 +105,45 @@ public class Map : MonoBehaviour
 
                 //Create tile sides
                 int mx = level.GetLength(0) - 1, my = level.GetLength(1) - 1;
-                if (current.Height > (x == 0 ? 0 : level[x-1,y].Height))
+                for (int c = current.Height; c>=0; c--)
                 {
-                    meshProxy.AddQuad(tiles, 30,
-                                  new Vector3(x,current.Height-1,-y-1),
-                                  Vector3.up,
-                                  Vector3.forward,
-                                  -Vector3.right);
-                }
-                if (current.Height > (x == mx ? 0 : level[x+1,y].Height))
-                {
-                    meshProxy.AddQuad(tiles, 30,
-                                      new Vector3(x+1,current.Height-1,-y),
-                                      Vector3.up,
-                                      -Vector3.forward,
-                                      Vector3.right);
-                }
-                if (current.Height > (y == 0 ? 0 : level[x,y-1].Height))
-                {
-                    meshProxy.AddQuad(tiles, 30,
-                                      new Vector3(x,current.Height-1,-y),
-                                      Vector3.up,
-                                      Vector3.right,
-                                      Vector3.forward);
-                }
-                if (current.Height > (y == my ? 0 : level[x,y+1].Height))
-                {
-                    meshProxy.AddQuad(tiles, 30,
-                                      new Vector3(x+1,current.Height-1,-y-1),
-                                      Vector3.up,
-                                      -Vector3.right,
-                                      -Vector3.forward);
-                }
+                    int sideInd = 32;
+                    if (c > 1) sideInd = 31;
+                    if (c > 2) sideInd = 30;
 
-                /*bool t = y > 0 && level[x,y-1].Height > current.Height;
-                
-                bool r = x < mx && level[x+1,y].Height > current.Height;
-                bool b = y < my && level[x,y+1].Height > current.Height;*/
+                    if (c > (x == 0 ? 0 : level[x-1,y].Height))
+                    {
+                        meshProxy.AddQuad(tiles, sideInd,
+                                      new Vector3(x,c-1,-y-1),
+                                      Vector3.up,
+                                      Vector3.forward,
+                                      -Vector3.right);
+                    }
+                    if (c > (x == mx ? 0 : level[x+1,y].Height))
+                    {
+                        meshProxy.AddQuad(tiles, sideInd,
+                                          new Vector3(x+1,c-1,-y),
+                                          Vector3.up,
+                                          -Vector3.forward,
+                                          Vector3.right);
+                    }
+                    if (c > (y == 0 ? 0 : level[x,y-1].Height))
+                    {
+                        meshProxy.AddQuad(tiles, sideInd,
+                                          new Vector3(x,c-1,-y),
+                                          Vector3.up,
+                                          Vector3.right,
+                                          Vector3.forward);
+                    }
+                    if (c > (y == my ? 0 : level[x,y+1].Height))
+                    {
+                        meshProxy.AddQuad(tiles, sideInd,
+                                          new Vector3(x+1,c-1,-y-1),
+                                          Vector3.up,
+                                          -Vector3.right,
+                                          -Vector3.forward);
+                    }
+                }
             }
         }
 
