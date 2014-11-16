@@ -3,15 +3,19 @@ using System.Collections;
 using System.Linq;
 using System.Collections.Generic;
 
-enum Tile : int
+public enum Tile : int
 {
-    Floor = 0,
-    Water = 1,
-    BridgeN = 2,
-    BridgeE = 3
+    Floor,
+    Water,
+    BridgeN,
+    BridgeE,
+    RampN,
+    RampE,
+    RampS,
+    RampW
 }
 
-struct TileInfo
+public struct TileInfo
 {
     public int Height;
     public Tile Type;
@@ -23,19 +27,7 @@ struct TileInfo
 
     public static bool operator <=(TileInfo a, TileInfo b)
     {
-        return false;
-    }
-}
-
-[System.Serializable]
-public struct PerlinNoise
-{
-    public Vector3 Scale;
-    public AnimationCurve Distribution;
-
-    public float Evaluate(int x, int y)
-    {
-        return Distribution.Evaluate(Mathf.PerlinNoise(x*Scale.x,y*Scale.y)) * Scale.z;
+        return a.Height <= b.Height;
     }
 }
 
@@ -49,14 +41,14 @@ public class Map : MonoBehaviour
         if (Tiles == null || Tiles.Length == 0)
             return;
 
-        TileInfo[,] level = MakeLevel();//ParseLevel(Level.text);
+        TileInfo[,] level = MakeLevel();
 
-        GetComponent<MeshRenderer>().sharedMaterial = new Material(Shader.Find("Diffuse"));
+        GetComponent<MeshRenderer>().sharedMaterial = new Material(Shader.Find("Custom/Shader"));
         GetComponent<MeshRenderer>().sharedMaterial.mainTexture = Tiles[0].texture;
 
         if (GetComponent<MeshFilter>().sharedMesh == null)
             GetComponent<MeshFilter>().sharedMesh = new Mesh();
-        GenerateMesh(GetComponent<MeshFilter>().sharedMesh, level, Tiles);
+        MapMesh.GenerateMesh(GetComponent<MeshFilter>().sharedMesh, level, Tiles);
 	}
 
     struct TileEdge
@@ -75,7 +67,10 @@ public class Map : MonoBehaviour
     {
         int minx = Mathf.Min(ax, bx), miny = Mathf.Min(ay, by);
         int maxx = Mathf.Max(ax, bx), maxy = Mathf.Max(ay, by);
-        int idx = (Mathf.Abs(maxx - minx) > 0 ? 110 : 100) + roomIndex;
+
+        bool isForward = Mathf.Abs(maxy - miny) > 0;
+
+        int idx = (isForward ? 100 : 110) + roomIndex;
         for (int x = minx; x<=maxx; x++)
             for (int y = miny; y<=maxy; y++)
                 if (level[x,y] <= 0)
@@ -178,7 +173,7 @@ public class Map : MonoBehaviour
 
         RoomEdge currentRoom = new RoomEdge(roomWidth / 2, roomWidth-1, 0, 0, 0);
         List<RoomEdge> availableEdges = new List<RoomEdge>();
-        for (int ind = 0; ind<roomsToMake+1; ind++)
+        for (int ind = 0; ind<roomsToMake; ind++)
         {
             int roomIdx = (ind/5)+1;
             rooms[currentRoom.tx,currentRoom.ty] = roomIdx;
@@ -219,6 +214,7 @@ public class Map : MonoBehaviour
             currentRoom = availableEdges[Range(0,availableEdges.Count)];
         }
 
+        //Figure out the final level types
         TileInfo[,] finalLevel = new TileInfo[width,width];
         for (int x = 0; x<width; x++)
         {
@@ -241,120 +237,27 @@ public class Map : MonoBehaviour
                 finalLevel[x,y].Height = height;
             }
         }
-        return finalLevel;
-    }
 
-    static int GetEdgeIndex(int x, int y, TileInfo[,] level, TileInfo current)
-    {
-        int mx = level.GetLength(0) - 1, my = level.GetLength(1) - 1;
-
-        bool l = x > 0 && level[x-1,y] >= current;
-        bool t = y > 0 && level[x,y-1] >= current;
-
-        bool r = x < mx && level[x+1,y] >= current;
-        bool b = y < my && level[x,y+1] >= current;
-
-        bool tl = x > 0  && y > 0  && level[x-1,y-1] >= current;
-        bool tr = x < mx && y > 0  && level[x+1,y-1] >= current;
-        bool bl = x > 0  && y < my && level[x-1,y+1] >= current;
-        bool br = x < mx && y < my && level[x+1,y+1] >= current;
-
-        int idx = 0;
-        if (l && tl && t) idx += 1;
-        if (t && tr && r) idx += 2;
-        if (r && br && b) idx += 8;
-        if (b && bl && l) idx += 4;
-
-        return idx;
-    }
-
-    static int GetHeight(TileInfo tile)
-    {
-        if (tile.Type == Tile.BridgeE || tile.Type == Tile.BridgeN)
-            return 0;
-        else
-            return tile.Height;
-    }
-
-    static void GenerateMesh(Mesh mesh, TileInfo[,] level, Sprite[] tiles)
-    {
-		MeshProxy meshProxy = new MeshProxy();
-
-        for (int x = 0; x<level.GetLength(0); x++)
+        //Add ramps when needed to move up near bridges
+        for (int x = 1; x<width-1; x++)
         {
-            for (int y = 0; y<level.GetLength(1); y++)
+            for (int y = 1; y<width-1; y++)
             {
-                TileInfo current = level[x,y];
-                if (current.Height == 0)
+                int height = finalLevel[x, y].Height;
+                if (height <= 0)
                     continue;
 
-                if (current.Type == Tile.BridgeN || current.Type == Tile.BridgeE)
-                {
-                    meshProxy.AddQuad(tiles, current.Type == Tile.BridgeN ? 34 : 35,
-                                      new Vector3(x-0.1f,current.Height+((x+y)*0.0001f),-y+0.1f),
-                                      -Vector3.forward*1.2f,
-                                      Vector3.right*1.2f,
-                                      Vector3.up);
-                    continue;
-                }
-
-                //Create top tile
-                int ind = GetEdgeIndex(x,y,level,level[x,y]);
-                if (ind == 0)
-                    ind = 15;
-                if (current.Type == Tile.Water) 
-                    ind += 15;
-
-                meshProxy.AddQuad(tiles, ind-1,
-                                  new Vector3(x,current.Height,-y),
-                                  -Vector3.forward,
-                                  Vector3.right,
-                                  Vector3.up);
-
-                //Create tile sides
-                int mx = level.GetLength(0) - 1, my = level.GetLength(1) - 1;
-                for (int c = current.Height; c>=0; c--)
-                {
-                    int sideInd = 32;
-                    if (c > 1) sideInd = 31;
-                    if (c > 2) sideInd = 30;
-
-                    if (c > (x == 0 ? 0 : GetHeight(level[x-1,y])))
-                    {
-                        meshProxy.AddQuad(tiles, sideInd,
-                                      new Vector3(x,c-1,-y-1),
-                                      Vector3.up,
-                                      Vector3.forward,
-                                      -Vector3.right);
-                    }
-                    if (c > (x == mx ? 0 : GetHeight(level[x+1,y])))
-                    {
-                        meshProxy.AddQuad(tiles, sideInd,
-                                          new Vector3(x+1,c-1,-y),
-                                          Vector3.up,
-                                          -Vector3.forward,
-                                          Vector3.right);
-                    }
-                    if (c > (y == 0 ? 0 : GetHeight(level[x,y-1])))
-                    {
-                        meshProxy.AddQuad(tiles, sideInd,
-                                          new Vector3(x,c-1,-y),
-                                          Vector3.up,
-                                          Vector3.right,
-                                          Vector3.forward);
-                    }
-                    if (c > (y == my ? 0 : GetHeight(level[x,y+1])))
-                    {
-                        meshProxy.AddQuad(tiles, sideInd,
-                                          new Vector3(x+1,c-1,-y-1),
-                                          Vector3.up,
-                                          -Vector3.right,
-                                          -Vector3.forward);
-                    }
-                }
+                if (finalLevel[x-1, y].Height > height)
+                    finalLevel[x-1, y].Type = Tile.RampE;
+                if (finalLevel[x+1, y].Height > height)
+                    finalLevel[x+1, y].Type = Tile.RampW;
+                if (finalLevel[x, y-1].Height > height)
+                    finalLevel[x, y-1].Type = Tile.RampN;
+                if (finalLevel[x, y+1].Height > height)
+                    finalLevel[x, y+1].Type = Tile.RampS;
             }
         }
 
-        meshProxy.ToMesh(mesh);
+        return finalLevel;
     }
 }
