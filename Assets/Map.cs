@@ -13,6 +13,28 @@ struct TileInfo
 {
     public int Height;
     public Tile Type;
+
+    public static bool operator >=(TileInfo a, TileInfo b)
+    {
+        return a.Height >= b.Height;
+    }
+
+    public static bool operator <=(TileInfo a, TileInfo b)
+    {
+        return false;
+    }
+}
+
+[System.Serializable]
+public struct PerlinNoise
+{
+    public Vector3 Scale;
+    public AnimationCurve Distribution;
+
+    public float Evaluate(int x, int y)
+    {
+        return Distribution.Evaluate(Mathf.PerlinNoise(x*Scale.x,y*Scale.y)) * Scale.z;
+    }
 }
 
 [ExecuteInEditMode, RequireComponent(typeof(MeshFilter), typeof(MeshRenderer))]
@@ -25,7 +47,7 @@ public class Map : MonoBehaviour
         if (Tiles == null || Tiles.Length == 0)
             return;
 
-        TileInfo[,] level = MakeLevel(30);//ParseLevel(Level.text);
+        TileInfo[,] level = MakeLevel(80);//ParseLevel(Level.text);
 
         GetComponent<MeshRenderer>().sharedMaterial = new Material(Shader.Find("Diffuse"));
         GetComponent<MeshRenderer>().sharedMaterial.mainTexture = Tiles[0].texture;
@@ -35,18 +57,27 @@ public class Map : MonoBehaviour
         GenerateMesh(GetComponent<MeshFilter>().sharedMesh, level, Tiles);
 	}
 
-    public Vector3 Scale = Vector3.one;
+    public PerlinNoise Height, HeightPlus;
+    public PerlinNoise Water;
+    public int NumRivers = 10;
 
     TileInfo[,] MakeLevel(int width)
     {
         TileInfo[,] level = new TileInfo[width,width];
 
+        //Generate a perlin heightmap with infinite depth stuff
         for (int x = 0; x<width; x++)
         {
             for (int y = 0; y<width; y++)
             {
-                level[x,y].Height = (int)(Mathf.PerlinNoise(x*Scale.x,y*Scale.y) * Scale.z);
-                level[x,y].Type = Tile.Floor;
+                int height = (int)Height.Evaluate(x,y);
+                int heightPlus = (int)HeightPlus.Evaluate(x,y);
+
+                level[x,y].Height = height + heightPlus;
+                level[x,y].Height = Mathf.Clamp(level[x,y].Height, 0, 4);
+
+                if (height == 0 && heightPlus > 0)
+                    level[x,y].Type = Water.Evaluate(x,y) > 0 ? Tile.Water : Tile.Floor;
             }
         }
 
@@ -57,16 +88,16 @@ public class Map : MonoBehaviour
     {
         int mx = level.GetLength(0) - 1, my = level.GetLength(1) - 1;
 
-        bool l = x > 0 && level[x-1,y].Height >= current.Height;
-        bool t = y > 0 && level[x,y-1].Height >= current.Height;
+        bool l = x > 0 && level[x-1,y] >= current;
+        bool t = y > 0 && level[x,y-1] >= current;
 
-        bool r = x < mx && level[x+1,y].Height >= current.Height;
-        bool b = y < my && level[x,y+1].Height >= current.Height;
+        bool r = x < mx && level[x+1,y] >= current;
+        bool b = y < my && level[x,y+1] >= current;
 
-        bool tl = x > 0  && y > 0  && level[x-1,y-1].Height >= current.Height;
-        bool tr = x < mx && y > 0  && level[x+1,y-1].Height >= current.Height;
-        bool bl = x > 0  && y < my && level[x-1,y+1].Height >= current.Height;
-        bool br = x < mx && y < my && level[x+1,y+1].Height >= current.Height;
+        bool tl = x > 0  && y > 0  && level[x-1,y-1] >= current;
+        bool tr = x < mx && y > 0  && level[x+1,y-1] >= current;
+        bool bl = x > 0  && y < my && level[x-1,y+1] >= current;
+        bool br = x < mx && y < my && level[x+1,y+1] >= current;
 
         int idx = 0;
         if (l && tl && t) idx += 1;

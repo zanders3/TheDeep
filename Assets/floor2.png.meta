@@ -1,6 +1,41 @@
 fileFormatVersion: 2
 guid: 5c79838569ea3654e8287d55754b8b4c
 TextureImporter:
+  fileIDToRecycleName:
+    21300000: floor2_0
+    21300002: floor2_1
+    21300004: floor2_2
+    21300006: floor2_3
+    21300008: floor2_4
+    21300010: floor2_5
+    21300012: floor2_6
+    21300014: floor2_7
+    21300016: floor2_8
+    21300018: floor2_9
+    21300020: floor2_10
+    21300022: floor2_11
+    21300024: floor2_12
+    21300026: floor2_13
+    21300028: floor2_14
+    21300030: floor2_15
+    21300032: floor2_16
+    21300034: floor2_17
+    21300036: floor2_18
+    21300038: floor2_19
+    21300040: floor2_20
+    21300042: floor2_21
+    21300044: floor2_22
+    21300046: floor2_23
+    21300048: floor2_24
+    21300050: floor2_25
+    21300052: floor2_26
+    21300054: floor2_27
+    21300056: floor2_28
+    21300058: floor2_29
+    21300060: floor2_30
+    21300062: floor2_31
+    21300064: floor2_32
+    21300066: floor2_33
   serializedVersion: 2
   mipmaps:
     mipMapMode: 0
