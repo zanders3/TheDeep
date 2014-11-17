@@ -6,6 +6,11 @@ public abstract class Character : MonoBehaviour
     public float MaxSpeed = 1.0f, MaxForce = 1.0f;
     public float Lookahead = 1.0f;
 
+    public Vector2 Position
+    {
+        get { return new Vector2(transform.position.x, transform.position.z); }
+    }
+
     protected Vector2 velocity;
 
     protected abstract Vector2 TakeInput();
@@ -76,16 +81,19 @@ public abstract class Character : MonoBehaviour
         return GetHeight(pos, tile) + 0.3f;
     }
 
-    void Update()
+    void FixedUpdate()
     {
         Vector2 position = new Vector3(transform.position.x, transform.position.z);
         Vector2 steering = Vector2.ClampMagnitude(TakeInput(), MaxForce);
 
-        velocity += steering * Time.deltaTime;
+        velocity += steering;
         velocity = Vector2.ClampMagnitude(velocity, MaxSpeed);
-        position += velocity * Time.deltaTime;
+        position += velocity;
 
-        float height = UpdateCollision(ref velocity, ref position);
+        float targetHeight = UpdateCollision(ref velocity, ref position);
+
+        float height = transform.position.y;
+        height += (targetHeight - height) * 0.2f;
 
         transform.position = new Vector3(position.x, height, position.y);
     }

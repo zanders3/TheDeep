@@ -11,12 +11,12 @@ public class CameraFollow : MonoBehaviour
             offset = transform.position - Target.position;
     }
 
-    void Update()
+    void FixedUpdate()
     {
         if (Target == null)
             return;
 
-        transform.position = Vector3.MoveTowards(transform.position, Target.position + offset, Time.deltaTime * 3.0f);
+        transform.position += ((Target.position + offset) - transform.position) * 0.1f;
         transform.LookAt(Target);
     }
 }
