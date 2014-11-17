@@ -35,6 +35,15 @@ public struct TileInfo
 public class Map : MonoBehaviour 
 {
     public Sprite[] Tiles;
+    public TileInfo[,] Level { get; private set; }
+
+    public TileInfo Get(int x, int y)
+    {
+        if (Level != null && x >= 0 && y >= 0 && x < Level.GetLength(0) && y < Level.GetLength(1))
+            return Level[x,y];
+        else
+            return new TileInfo();
+    }
 
 	void Update() 
 	{
@@ -49,6 +58,8 @@ public class Map : MonoBehaviour
         if (GetComponent<MeshFilter>().sharedMesh == null)
             GetComponent<MeshFilter>().sharedMesh = new Mesh();
         MapMesh.GenerateMesh(GetComponent<MeshFilter>().sharedMesh, level, Tiles);
+
+        Level = level;
 	}
 
     struct TileEdge
@@ -171,7 +182,7 @@ public class Map : MonoBehaviour
         int[,] rooms = new int[roomWidth, roomWidth];
         int[,] level = new int[width, width];
 
-        RoomEdge currentRoom = new RoomEdge(roomWidth / 2, roomWidth-1, 0, 0, 0);
+        RoomEdge currentRoom = new RoomEdge(roomWidth / 2, 0, 0, 0, 0);
         List<RoomEdge> availableEdges = new List<RoomEdge>();
         for (int ind = 0; ind<roomsToMake; ind++)
         {
@@ -251,10 +262,10 @@ public class Map : MonoBehaviour
                     finalLevel[x-1, y].Type = Tile.RampE;
                 if (finalLevel[x+1, y].Height > height)
                     finalLevel[x+1, y].Type = Tile.RampW;
-                if (finalLevel[x, y-1].Height > height)
-                    finalLevel[x, y-1].Type = Tile.RampN;
                 if (finalLevel[x, y+1].Height > height)
-                    finalLevel[x, y+1].Type = Tile.RampS;
+                    finalLevel[x, y+1].Type = Tile.RampN;
+                if (finalLevel[x, y-1].Height > height)
+                    finalLevel[x, y-1].Type = Tile.RampS;
             }
         }
 
