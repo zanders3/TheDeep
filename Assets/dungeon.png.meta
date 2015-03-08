@@ -1,6 +1,118 @@
 fileFormatVersion: 2
 guid: 223b0271cdff74053a7b5b92de929661
 TextureImporter:
+  fileIDToRecycleName:
+    21300000: floor_6
+    21300002: floor_14
+    21300004: floor_14
+    21300006: floor_14
+    21300008: floor_12
+    21300010: dungeon_5
+    21300012: floor_10
+    21300014: dungeon_7
+    21300016: dungeon_8
+    21300018: dungeon_9
+    21300020: dungeon_10
+    21300022: dungeon_11
+    21300024: water_6
+    21300026: water_14
+    21300028: water_12
+    21300030: dungeon_15
+    21300032: dungeon_16
+    21300034: water_0
+    21300036: dungeon_18
+    21300038: dungeon_19
+    21300040: dungeon_20
+    21300042: floor_7
+    21300044: floor_15
+    21300046: floor_15
+    21300048: floor_15
+    21300050: floor_13
+    21300052: floor_5
+    21300054: floor_5
+    21300056: dungeon_29
+    21300058: dungeon_30
+    21300060: dungeon_31
+    21300062: dungeon_32
+    21300064: water_7
+    21300066: water_15
+    21300068: water_13
+    21300070: dungeon_36
+    21300072: dungeon_37
+    21300074: dungeon_38
+    21300076: dungeon_39
+    21300078: dungeon_40
+    21300080: dungeon_41
+    21300082: floor_7
+    21300084: floor_15
+    21300086: floor_15
+    21300088: floor_15
+    21300090: floor_13
+    21300092: dungeon_47
+    21300094: floor_10
+    21300096: dungeon_49
+    21300098: dungeon_50
+    21300100: dungeon_51
+    21300102: dungeon_52
+    21300104: dungeon_53
+    21300106: water_3
+    21300108: water_11
+    21300110: water_9
+    21300112: dungeon_57
+    21300114: dungeon_58
+    21300116: water_5
+    21300118: dungeon_60
+    21300120: dungeon_61
+    21300122: dungeon_62
+    21300124: floor_7
+    21300126: floor_15
+    21300128: floor_15
+    21300130: floor_15
+    21300132: floor_13
+    21300134: floor_4
+    21300136: floor_2
+    21300138: floor_8
+    21300140: dungeon_71
+    21300142: dungeon_72
+    21300144: dungeon_73
+    21300146: dungeon_74
+    21300148: dungeon_75
+    21300150: dungeon_76
+    21300152: dungeon_77
+    21300154: water_10
+    21300156: dungeon_79
+    21300158: dungeon_80
+    21300160: dungeon_81
+    21300162: floor_3
+    21300164: floor_11
+    21300166: floor_11
+    21300168: floor_11
+    21300170: floor_9
+    21300172: floor_1
+    21300174: dungeon_90
+    21300176: floor_0
+    21300178: dungeon_92
+    21300180: dungeon_93
+    21300182: dungeon_94
+    21300184: water_4
+    21300186: water_1
+    21300188: water_2
+    21300190: water_8
+    21300192: dungeon_99
+    21300194: dungeon_100
+    21300196: dungeon_102
+    21300198: dungeon_103
+    21300200: dungeon_105
+    21300202: dungeon_106
+    21300204: dungeon_107
+    21300206: dungeon_108
+    21300208: dungeon_109
+    21300210: dungeon_111
+    21300212: dungeon_112
+    21300214: dungeon_113
+    21300216: dungeon_114
+    21300218: dungeon_117
+    21300220: dungeon_119
   serializedVersion: 2
   mipmaps:
     mipMapMode: 0
@@ -19,6 +131,9 @@ TextureImporter:
   isReadable: 0
   grayScaleToAlpha: 0
   generateCubemap: 0
+  cubemapConvolution: 0
+  cubemapConvolutionSteps: 8
+  cubemapConvolutionExponent: 1.5
   seamlessCubemap: 0
   textureFormat: -1
   maxTextureSize: 1024
@@ -29,6 +144,7 @@ TextureImporter:
     wrapMode: 1
   nPOTScale: 0
   lightmap: 0
+  rGBM: 0
   compressionQuality: 50
   spriteMode: 2
   spriteExtrude: 1
@@ -1154,3 +1270,5 @@ TextureImporter:
       border: {x: 0, y: 0, z: 0, w: 0}
   spritePackingTag: 
   userData: 
+  assetBundleName: test
+  assetBundleVariant: test2

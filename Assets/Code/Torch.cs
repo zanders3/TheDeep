@@ -6,6 +6,6 @@ public class Torch : MonoBehaviour
 
     void Update()
     {
-        light.range = Mathf.PerlinNoise(Time.realtimeSinceStartup * Speed, 0.0f) * Scale + Offset;
+        GetComponent<Light>().range = Mathf.PerlinNoise(Time.realtimeSinceStartup * Speed, 0.0f) * Scale + Offset;
     }
 }

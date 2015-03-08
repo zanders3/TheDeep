@@ -173,9 +173,11 @@ public class Map : MonoBehaviour
         return random.Next(max - min) + min;
     }
 
+    public int Seed = 100;
+
     TileInfo[,] MakeLevel()
     {
-        random = new System.Random(0);
+        random = new System.Random(Seed);
 
         const int roomWidth = 6, roomSize = 10, roomsToMake = 10;
         int width = roomWidth * roomSize;

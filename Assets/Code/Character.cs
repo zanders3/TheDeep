@@ -4,7 +4,10 @@ public abstract class Character : MonoBehaviour
 {
     public Map Map;
     public float MaxSpeed = 1.0f, MaxForce = 1.0f;
-    public float Lookahead = 1.0f;
+
+    float walkHeight = 0.0f, walkVelocity = 0.0f;
+
+    public float Height { get; private set; }
 
     public Vector2 Position
     {
@@ -35,9 +38,8 @@ public abstract class Character : MonoBehaviour
 
     bool CannotTraverse(float currentHeight, float x, float y)
     {
-        return Mathf.Abs(
-            currentHeight - GetHeight(new Vector2(x, y), Map.Get(Mathf.FloorToInt(x), Mathf.FloorToInt(y)))
-        ) > 0.8f;
+        float targetHeight = GetHeight(new Vector2(x, y), Map.Get(Mathf.FloorToInt(x), Mathf.FloorToInt(y)));
+        return targetHeight > currentHeight + 0.8f;
     }
 
     float UpdateCollision(ref Vector2 velocity, ref Vector2 pos)
@@ -91,10 +93,43 @@ public abstract class Character : MonoBehaviour
         position += velocity;
 
         float targetHeight = UpdateCollision(ref velocity, ref position);
+        Height = targetHeight;
 
-        float height = transform.position.y;
-        height += (targetHeight - height) * 0.2f;
+        //Add walk jumping animation to y height
+        walkVelocity += -6.0f * Time.deltaTime;
+        if (walkHeight <= targetHeight)
+        {
+            walkHeight = targetHeight;
+            walkVelocity += (targetHeight - walkHeight);
+            if (walkVelocity < 0.0f)
+            {
+                if (velocity.magnitude > 0.01f)
+                    walkVelocity += 1.0f;
+                else
+                    walkVelocity = 0.0f;
+            }
+        }
 
-        transform.position = new Vector3(position.x, height, position.y);
+        walkHeight += walkVelocity * Time.deltaTime;
+
+        transform.position = new Vector3(position.x, walkHeight, position.y);
+
+        //Calculate new rotation based upon velocity direction
+        if (velocity.magnitude > 0.01f)
+        {
+            float targetAngle = Mathf.Atan2(velocity.y, -velocity.x) * Mathf.Rad2Deg;
+            //Avoid 45 <-> 135 angles (to avoid not facing the camera)
+            if (targetAngle > 45f && targetAngle < 135f)
+                targetAngle = targetAngle > 90f ? 135f : 45f;
+            else if (targetAngle < -45f && targetAngle > -135f)
+                targetAngle = targetAngle > -90f ? -45f : -135f;
+
+            transform.rotation = 
+                Quaternion.Lerp(
+                    transform.rotation,
+                    Quaternion.AngleAxis(targetAngle, Vector3.up),
+                    0.2f
+                );
+        }
     }
 }
