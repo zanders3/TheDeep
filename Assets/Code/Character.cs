@@ -5,9 +5,9 @@ public abstract class Character : MonoBehaviour
     public Map Map;
     public float MaxSpeed = 1.0f, MaxForce = 1.0f;
 
-    float walkHeight = 0.0f, walkVelocity = 0.0f;
-
-    public float Height { get; private set; }
+    float height, heightVelocity = 0.0f;
+    Quaternion targetRotation = Quaternion.identity;
+    bool hadContact = false;
 
     public Vector2 Position
     {
@@ -18,13 +18,19 @@ public abstract class Character : MonoBehaviour
 
     protected abstract Vector2 TakeInput();
 
+    protected virtual void Start()
+    {
+        Vector2 pos = Position;
+        height = GetHeight(pos, Map.Get(Mathf.FloorToInt(pos.x), Mathf.FloorToInt(pos.y)));
+    }
+
     static float GetHeight(Vector2 pos, TileInfo tile)
     {
         float x = pos.x % 1.0f, y = pos.y % 1.0f;
         switch (tile.Type)
         {
             default:
-                return tile.Height;
+                return tile.Height == 0.0f ? -100.0f : tile.Height;
             case Tile.RampW:
                 return (tile.Height-1) + x;
             case Tile.RampE:
@@ -39,7 +45,7 @@ public abstract class Character : MonoBehaviour
     bool CannotTraverse(float currentHeight, float x, float y)
     {
         float targetHeight = GetHeight(new Vector2(x, y), Map.Get(Mathf.FloorToInt(x), Mathf.FloorToInt(y)));
-        return targetHeight > currentHeight + 0.8f;
+        return targetHeight > currentHeight + 0.5f;
     }
 
     float UpdateCollision(ref Vector2 velocity, ref Vector2 pos)
@@ -47,7 +53,6 @@ public abstract class Character : MonoBehaviour
         int x = Mathf.FloorToInt(pos.x), y = Mathf.FloorToInt(pos.y);
 
         TileInfo tile = Map.Get(x, y);
-        float height = GetHeight(pos, tile);
 
         bool l = CannotTraverse(height, pos.x-0.5f, pos.y);
         bool r = CannotTraverse(height, pos.x+0.5f, pos.y);
@@ -61,23 +66,19 @@ public abstract class Character : MonoBehaviour
 
         if (pos.x <= minX)
         {
-            velocity.x = pos.x - minX;
-            pos.x = minX;
+            velocity.x -= pos.x - minX;
         }
         if (pos.x >= maxX)
         {
-            velocity.x = pos.x - maxX;
-            pos.x = maxX;
+            velocity.x -= pos.x - maxX;
         }
         if (pos.y <= minY)
         {
-            velocity.y = pos.y - minY;
-            pos.y = minY;
+            velocity.y -= pos.y - minY;
         }
         if (pos.y >= maxY)
         {
-            velocity.y = pos.y - maxY;
-            pos.y = maxY;
+            velocity.y -= pos.y - maxY;
         }
 
         return GetHeight(pos, tile) + 0.3f;
@@ -85,34 +86,48 @@ public abstract class Character : MonoBehaviour
 
     void FixedUpdate()
     {
+        //Calculate position and steering
         Vector2 position = new Vector3(transform.position.x, transform.position.z);
         Vector2 steering = Vector2.ClampMagnitude(TakeInput(), MaxForce);
 
         velocity += steering;
         velocity = Vector2.ClampMagnitude(velocity, MaxSpeed);
-        position += velocity;
 
         float targetHeight = UpdateCollision(ref velocity, ref position);
-        Height = targetHeight;
+        position += velocity;
 
-        //Add walk jumping animation to y height
-        walkVelocity += -6.0f * Time.deltaTime;
-        if (walkHeight <= targetHeight)
+        //Apply gravity
+        heightVelocity += -9.0f * Time.fixedDeltaTime;
+
+        //Apply fallen off edge jump force
+        if (hadContact && height > targetHeight + 0.8f)
         {
-            walkHeight = targetHeight;
-            walkVelocity += (targetHeight - walkHeight);
-            if (walkVelocity < 0.0f)
-            {
-                if (velocity.magnitude > 0.01f)
-                    walkVelocity += 1.0f;
-                else
-                    walkVelocity = 0.0f;
-            }
+            heightVelocity += 3.0f;
+            hadContact = false;
         }
 
-        walkHeight += walkVelocity * Time.deltaTime;
+        //Apply walking jump force
+        float p = targetHeight - height;
+        if (Mathf.Abs(p) < 0.01f && heightVelocity <= 0.0f && velocity.magnitude > 0.01f)
+        {
+            heightVelocity += 1.0f;
+        }
 
-        transform.position = new Vector3(position.x, walkHeight, position.y);
+        //Apply surface contact force and impulse
+        if (p > 0.0f)
+        {
+            if (heightVelocity < 0.0f)
+                heightVelocity = 0.0f;
+            height += p * 0.2f;
+
+            if (Mathf.Abs(p) < 0.01f)
+                hadContact = true;
+        }
+
+        //Apply height velocity
+        height += heightVelocity * Time.fixedDeltaTime;
+
+        transform.position = new Vector3(position.x, height, position.y);
 
         //Calculate new rotation based upon velocity direction
         if (velocity.magnitude > 0.01f)
@@ -120,16 +135,17 @@ public abstract class Character : MonoBehaviour
             float targetAngle = Mathf.Atan2(velocity.y, -velocity.x) * Mathf.Rad2Deg;
             //Avoid 45 <-> 135 angles (to avoid not facing the camera)
             if (targetAngle > 45f && targetAngle < 135f)
-                targetAngle = targetAngle > 90f ? 135f : 45f;
+                targetAngle = targetAngle > 80f ? 135f : 45f;
             else if (targetAngle < -45f && targetAngle > -135f)
-                targetAngle = targetAngle > -90f ? -45f : -135f;
+                targetAngle = targetAngle > -80f ? -45f : -135f;
 
-            transform.rotation = 
-                Quaternion.Lerp(
-                    transform.rotation,
-                    Quaternion.AngleAxis(targetAngle, Vector3.up),
-                    0.2f
-                );
+            targetRotation = Quaternion.AngleAxis(targetAngle, Vector3.up);
         }
+
+        transform.rotation = Quaternion.Lerp(
+            transform.rotation,
+            targetRotation,
+            0.2f
+        );
     }
 }

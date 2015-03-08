@@ -5,11 +5,12 @@ public class Baddie : Character
     public PlayerCharacter Player;
     public const float AttackDistSq = 2.0f * 2.0f;
 
-    private Vector2 startPos;
+    Vector2 startPos;
 
-    void Start()
+    protected override void Start()
     {
         startPos = Position;
+        base.Start();
     }
 
     protected override Vector2 TakeInput()
