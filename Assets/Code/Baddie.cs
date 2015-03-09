@@ -15,6 +15,9 @@ public class Baddie : Character
 
     protected override Vector2 TakeInput()
     {
+        if (transform.position.y < 0.0f)
+            GameObject.Destroy(gameObject);
+
         Vector2 playerDir = Player.Position - Position;
         Vector2 desiredVelocity;
 

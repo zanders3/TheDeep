@@ -2,6 +2,7 @@
 using System.Collections;
 using System.Linq;
 using System.Collections.Generic;
+using System;
 
 public enum Tile : int
 {
@@ -15,6 +16,7 @@ public enum Tile : int
     RampW
 }
 
+[Serializable]
 public struct TileInfo
 {
     public int Height;
@@ -35,19 +37,20 @@ public struct TileInfo
 public class Map : MonoBehaviour 
 {
     public Sprite[] Tiles;
-    public TileInfo[,] Level { get; private set; }
+    public TileInfo[] Level;
+    public int Width, Height;
 
     public TileInfo Get(int x, int y)
     {
-        if (Level != null && x >= 0 && y >= 0 && x < Level.GetLength(0) && y < Level.GetLength(1))
-            return Level[x,y];
+        if (Level != null && x >= 0 && y >= 0 && x < Width && y < Height)
+            return Level[x*Width+y];
         else
             return new TileInfo();
     }
 
 	void Update() 
 	{
-        if (Tiles == null || Tiles.Length == 0)
+        if (Tiles == null || Tiles.Length == 0 || Application.isPlaying)
             return;
 
         TileInfo[,] level = MakeLevel();
@@ -59,7 +62,12 @@ public class Map : MonoBehaviour
             GetComponent<MeshFilter>().sharedMesh = new Mesh();
         MapMesh.GenerateMesh(GetComponent<MeshFilter>().sharedMesh, level, Tiles);
 
-        Level = level;
+        Width = level.GetLength(0);
+        Height = level.GetLength(1);
+        Level = new TileInfo[Width * Height];
+        for (int x = 0; x<Width; x++)
+            for (int y = 0; y<Height; y++)
+                Level[x*Width+y] = level[x,y];
 	}
 
     struct TileEdge

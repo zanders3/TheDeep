@@ -20,8 +20,20 @@ public abstract class Character : MonoBehaviour
 
     protected virtual void Start()
     {
-        Vector2 pos = Position;
-        height = GetHeight(pos, Map.Get(Mathf.FloorToInt(pos.x), Mathf.FloorToInt(pos.y)));
+        SetPosition(transform.position.x, transform.position.z);
+    }
+
+    protected void SetPosition(float x, float y)
+    {
+        height = GetHeight(new Vector2(x, y), Map.Get(Mathf.FloorToInt(x), Mathf.FloorToInt(y)));
+        heightVelocity = 0.0f;
+        hadContact = false;
+
+        targetRotation = Quaternion.identity;
+        transform.rotation = Quaternion.identity;
+
+        transform.position = new Vector3(x, height, y);
+        velocity = Vector2.zero;
     }
 
     static float GetHeight(Vector2 pos, TileInfo tile)
@@ -84,11 +96,11 @@ public abstract class Character : MonoBehaviour
         return GetHeight(pos, tile) + 0.3f;
     }
 
-    void FixedUpdate()
+    public void DoUpdate()
     {
         //Calculate position and steering
-        Vector2 position = new Vector3(transform.position.x, transform.position.z);
         Vector2 steering = Vector2.ClampMagnitude(TakeInput(), MaxForce);
+        Vector2 position = new Vector3(transform.position.x, transform.position.z);
 
         velocity += steering;
         velocity = Vector2.ClampMagnitude(velocity, MaxSpeed);

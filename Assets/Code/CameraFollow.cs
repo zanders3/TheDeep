@@ -11,6 +11,12 @@ public class CameraFollow : MonoBehaviour
             offset = transform.position - Target.transform.position;
     }
 
+    public void Reposition()
+    {
+        transform.position = Target.transform.position + offset;
+        targetYPos = null;
+    }
+
     float[] targetYPos = null;
     int currentIdx = 0;
 
@@ -33,7 +39,9 @@ public class CameraFollow : MonoBehaviour
         for (int i = 1; i<targetYPos.Length; i++)
             targetPos.y = Mathf.Min(targetYPos[i], targetPos.y);
 
-        transform.position += ((targetPos + offset) - transform.position) * 0.1f;
+        Vector3 targetDelta = ((targetPos + offset) - transform.position);
+        transform.position += targetDelta * 0.1f;
+
         transform.LookAt(targetPos);
     }
 }
