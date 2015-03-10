@@ -15,6 +15,7 @@ public abstract class Character : MonoBehaviour
     }
 
     protected Vector2 velocity;
+    Vector2 impulse = Vector2.zero;
 
     protected abstract Vector2 TakeInput();
 
@@ -96,6 +97,11 @@ public abstract class Character : MonoBehaviour
         return GetHeight(pos, tile) + 0.3f;
     }
 
+    public void AddImpulse(Vector2 impulse)
+    {
+        this.impulse += impulse;
+    }
+
     public void DoUpdate()
     {
         //Calculate position and steering
@@ -106,6 +112,8 @@ public abstract class Character : MonoBehaviour
         velocity = Vector2.ClampMagnitude(velocity, MaxSpeed);
 
         float targetHeight = UpdateCollision(ref velocity, ref position);
+        velocity += impulse;
+        impulse = Vector2.zero;
         position += velocity;
 
         //Apply gravity
