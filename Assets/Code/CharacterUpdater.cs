@@ -13,6 +13,15 @@ public class CharacterUpdater : MonoBehaviour
     List<Character> characters = new List<Character>();
     List<Contact> contacts = new List<Contact>();
 
+    public void FindAllInRadius(List<Character> list, Vector2 pos, float radius)
+    {
+        float radiusSq = radius * radius;
+        list.Clear();
+        for (int i = 0; i<characters.Count; i++)
+            if ((characters[i].Position - pos).sqrMagnitude < radiusSq)
+                list.Add(characters[i]);
+    }
+
     void Broadphase()
     {
         contacts.Clear();

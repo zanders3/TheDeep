@@ -24,9 +24,15 @@ public class Baddie : Character
     {
         if (other == Player)
         {
+            Player.Damage(this);
             GetComponent<SpriteRenderer>().sprite = AttackSprite;
             baddieIdleFrames = NumIdleFrames;
         }
+    }
+
+    public override void Damage(Character sender)
+    {
+        GameObject.Destroy(gameObject);
     }
 
     protected override Vector2 TakeInput()

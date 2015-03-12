@@ -7,7 +7,7 @@ public abstract class Character : MonoBehaviour
 
     public const float Radius = 0.4f;
 
-    public Map Map;
+    public GameManager GameManager;
     public float MaxSpeed = 1.0f, MaxForce = 1.0f;
 
     float height, heightVelocity = 0.0f;
@@ -29,9 +29,11 @@ public abstract class Character : MonoBehaviour
         SetPosition(transform.position.x, transform.position.z);
     }
 
+    public virtual void Damage(Character sender) {}
+
     protected void SetPosition(float x, float y)
     {
-        height = GetHeight(new Vector2(x, y), Map.Get(Mathf.FloorToInt(x), Mathf.FloorToInt(y)));
+        height = GetHeight(new Vector2(x, y), GameManager.Map.Get(Mathf.FloorToInt(x), Mathf.FloorToInt(y)));
         heightVelocity = 0.0f;
         hadContact = false;
 
@@ -62,7 +64,7 @@ public abstract class Character : MonoBehaviour
 
     bool CannotTraverse(float currentHeight, float x, float y)
     {
-        float targetHeight = GetHeight(new Vector2(x, y), Map.Get(Mathf.FloorToInt(x), Mathf.FloorToInt(y)));
+        float targetHeight = GetHeight(new Vector2(x, y), GameManager.Map.Get(Mathf.FloorToInt(x), Mathf.FloorToInt(y)));
         return targetHeight > currentHeight + 0.5f;
     }
 
@@ -70,7 +72,7 @@ public abstract class Character : MonoBehaviour
     {
         int x = Mathf.FloorToInt(pos.x), y = Mathf.FloorToInt(pos.y);
 
-        TileInfo tile = Map.Get(x, y);
+        TileInfo tile = GameManager.Map.Get(x, y);
 
         bool l = CannotTraverse(height, pos.x-0.5f, pos.y);
         bool r = CannotTraverse(height, pos.x+0.5f, pos.y);

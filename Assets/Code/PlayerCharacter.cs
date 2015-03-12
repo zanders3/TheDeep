@@ -2,9 +2,13 @@ using UnityEngine;
 using System.Collections.Generic;
 using UnityEngine.UI;
 
+[RequireComponent(typeof(SpriteRenderer))]
 public class PlayerCharacter : Character
 {
     public const int MaxHealth = 6;
+    public const float AttackRange = 1f;
+
+    public Sprite Normal, Attack;
 
     Vector2 spawnPos;
     int health = MaxHealth;
@@ -15,23 +19,20 @@ public class PlayerCharacter : Character
     public ParticleSystem SpawnParticles;
     public CameraFollow CameraFollow;
 
-    public PlayerUI PlayerUI;
-
     protected override void Start()
     {
         spawnPos = Position;
-        base.OnCollision += OnCharCollision;
-        PlayerUI.Health = health;
+        GameManager.PlayerUI.Health = health;
         base.Start();
     }
 
-    void OnCharCollision(Character other)
+    public override void Damage(Character sender)
     {
-        hitPushbackDir = (Position - other.Position).normalized * .1f;
+        hitPushbackDir = (Position - sender.Position).normalized * .1f;
         hitPushbackFrames = 10;
 
         health--;
-        PlayerUI.Health = health;
+        GameManager.PlayerUI.Health = health;
 
         if (health <= 0)
             Respawn();
@@ -45,6 +46,8 @@ public class PlayerCharacter : Character
         health = MaxHealth;
     }
 
+    List<Character> attackList = new List<Character>();
+
     protected override Vector2 TakeInput()
     {
         //Detect player death from falling
@@ -52,6 +55,18 @@ public class PlayerCharacter : Character
         {
             Respawn();
             return Vector2.zero;
+        }
+
+        GetComponent<SpriteRenderer>().sprite = Input.GetButton("Attack") ? Attack : Normal;
+        if (Input.GetButtonDown("Attack"))
+        {
+            GameManager.CharacterUpdater.FindAllInRadius(attackList, Position, AttackRange);
+            foreach (Character character in attackList)
+            {
+                if (character == this)
+                    continue;
+                character.Damage(this);
+            }
         }
 
         //Take user input
