@@ -1,21 +1,26 @@
 using UnityEngine;
 
+[RequireComponent(typeof(SpriteRenderer))]
 public abstract class Character : MonoBehaviour
 {
+    public System.Action<Character> OnCollision = null;
+
+    public const float Radius = 0.4f;
+
     public Map Map;
     public float MaxSpeed = 1.0f, MaxForce = 1.0f;
 
     float height, heightVelocity = 0.0f;
     Quaternion targetRotation = Quaternion.identity;
     bool hadContact = false;
+    
+    protected Vector2 velocity;
+    Vector2 impulse = Vector2.zero;
 
     public Vector2 Position
     {
         get { return new Vector2(transform.position.x, transform.position.z); }
     }
-
-    protected Vector2 velocity;
-    Vector2 impulse = Vector2.zero;
 
     protected abstract Vector2 TakeInput();
 
